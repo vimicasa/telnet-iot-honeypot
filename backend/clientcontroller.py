@@ -11,7 +11,7 @@ from simpleeval import simple_eval
 from argon2 import argon2_hash
 
 from additionalinfo import get_ip_info, get_url_info, get_asn_info
-from db import get_db, filter_ascii, Sample, Connection, Url, ASN, Tag, User
+from db import get_db, filter_ascii, Sample, Connection, Url, ASN, Tag, User, IpReport
 from virustotal import Virustotal
 
 from cuckoo import Cuckoo
@@ -91,14 +91,15 @@ class WebController:
 		self.session  = None
 
 	@db_wrapper
+	def get_ip_report(self, ip):
+		ip_report = self.session.query(IpReport).filter(IpReport.ip == ip).first()
+		return ip_report.report if ip_report else None
+
+	@db_wrapper
 	def get_connection(self, id):
 		connection = self.session.query(Connection).filter(Connection.id == id).first()
-
-		if connection:
-			return connection.json(depth=1)
-		else:
-			return None
-
+		return connection.json(depth=1) if connection else None
+	
 	@db_wrapper
 	def get_connections(self, filter_obj={}, older_than=None):
 		query = self.session.query(Connection).filter_by(**filter_obj)
@@ -178,7 +179,7 @@ class WebController:
 		if asn_obj:
 			return asn_obj.json(depth=1)
 		else:
-			return null
+			return None
 
 	##
 	
@@ -268,6 +269,12 @@ class ClientController:
 				asn     = ipinfo["asn"]
 				block   = ipinfo["ipblock"]
 				country = ipinfo["country"]
+		
+		report={}
+		if self.vt != None:
+			report = self.vt.query_ip_reports(session["ip"])
+			ipReport = IpReport(ip=session["ip"],report=json.dumps(report))
+			self.session.add(ipReport)
 
 		# Calculate "hash"
 		connhash = ""

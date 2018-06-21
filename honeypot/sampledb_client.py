@@ -11,9 +11,7 @@ from util.config import config
 
 _BACKEND = None
 def get_backend():
-	if _BACKEND:
-		return _BACKEND
-	elif config.get("backend", optional=True) != None:
+	if config.get("backend", optional=True) != None:
 		_BACKEND = client.Client()
 		return _BACKEND
 	else:

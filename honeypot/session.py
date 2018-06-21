@@ -9,15 +9,17 @@ import struct
 import socket
 
 from util.dbg import dbg
-
+from util.config import config
 from sampledb_client import SessionRecord
 
 from shell.shell import Env, run
 
 MIN_FILE_SIZE = 128
-PROMPT = " # "
+PROMPT = "router# "
 			
 class Session:
+	prompt 	= config.get("prompt", optional=True, default=PROMPT) 
+
 	def __init__(self, output, remote_addr):
 		dbg("New Session")
 		self.output      = output
@@ -34,8 +36,6 @@ class Session:
 	def login(self, user, password):
 		dbg("Session login: user=" + user + " password=" + password)
 		self.record.set_login(self.remote_addr, user, password)
-		
-		self.send_string(PROMPT)
 
 	def download(self, data):
 		path = data["path"]
@@ -58,7 +58,7 @@ class Session:
 			else:
 				dbg("Ignore small file: " + path + " (" + str(len(data)) + ") bytes")
 		
-
+	@staticmethod
 	def end(self):
 		dbg("Session End")
 	
@@ -78,8 +78,8 @@ class Session:
 		self.record.addInput(l + "\n")
 	
 		try:
-			tree = parse(l)
-			tree.run(self.env)
+			tree = run(l)
+			tree.run(self.env)			
 		except:
 			dbg("Could not parse \""+l+"\"")
 			self.send_string("sh: syntax error near unexpected token `" + " " + "'\n")

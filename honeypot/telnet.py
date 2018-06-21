@@ -2,9 +2,13 @@ import struct
 import socket
 import traceback
 import time
+import string
 
 from session import Session
+from welcome import Welcome
 from util.dbg import dbg
+
+TELNET_ISSUE = "\nTELNET session now in ESTABLISHED state\n"
 
 class Telnetd:
 	cmds   = {}
@@ -86,11 +90,11 @@ class TelnetSess:
 	def __init__(self, serv, sock, remote):
 		self.serv    = serv
 		self.sock    = sock
-		self.timeout = 15.0 # Read timeout
+		self.timeout = 5.0 # Read timeout
 		self.maxtime = 60.0 # Max session time
 		self.db_id   = 0
 		self.remote  = remote
-		self.session = None
+		self.session = None	
 
 	def loop(self):
 		self.session = Session(self.send_string, self.remote[0])
@@ -99,23 +103,20 @@ class TelnetSess:
 		self.sock.settimeout(self.timeout)
 
 		try:
-			self.test_opt(1)
 
 			# Kill of Session if longer than self.maxtime
 			ts_start = int(time.time())
 
-			self.send_string("Login: ")
-			u = self.recv_line()
-			self.send_string("Password: ")
-			p = self.recv_line()
-
+			#Welcome Protocol
+			Welcome(self).generateWelcome()
+			
+			self.send_string(TELNET_ISSUE)
 			self.send_string("\r\nWelcome to EmbyLinux 3.13.0-24-generic\r\n")
-
-			self.session.login(u, p)
-
+			self.send_string(Session.prompt)
+			
 			while True:
 				l = self.recv_line()
-
+				
 				try:
 					self.session.shell(l)
 				except:
@@ -131,7 +132,7 @@ class TelnetSess:
 		except EOFError:
 			dbg("Connection closed")
 
-		self.session.end()
+		Session.end(self.session)
 
 	def test_naws(self):
 		#dbg("TEST NAWS")
@@ -158,37 +159,29 @@ class TelnetSess:
 		if self.test_opt(34):
 			self.need(Telnetd.IAC)
 			self.need(Telnetd.SE)
+	
+	
 
-	def test_opt(self, opt, do=True):
-		#dbg("TEST " + str(opt))
+	def test_opt(self, opt, future=True):
 
 		self.send(Telnetd.IAC)
-		if do:
-			self.send(Telnetd.DO)
+		if future:
+			self.send(Telnetd.WILL)
 		else:
-			self.send(Telnetd.DONT)
+			self.send(Telnetd.DO)
 		self.send(opt)
 
 	def send(self, byte):
-		#if byte in Telnetd.cmds:
-		#	dbg("SEND " + str(Telnetd.cmds[byte]))
-		#else:
-		#	dbg("SEND " + str(byte))
 		self.sock.send(chr(byte))
 
 	def send_string(self, msg):
 		self.sock.send(msg)
-		#dbg("SEND STRING LEN" + str(len(msg)))
 
 	def recv(self):
 		byte = self.sock.recv(1)
 		if len(byte) == 0:
 			raise EOFError
 		byte = ord(byte)
-		#if byte in Telnetd.cmds:
-		#	dbg("RECV " + str(Telnetd.cmds[byte]))
-		#else:
-		#	dbg("RECV " + str(byte))
 		return byte
 
 	def recv_line(self):
@@ -215,10 +208,6 @@ class TelnetSess:
 
 	def need(self, byte_need):
 		byte = ord(self.sock.recv(1))
-		#if byte in Telnetd.cmds:
-		#	dbg("RECV " + str(Telnetd.cmds[byte]))
-		#else:
-		#	dbg("RECV " + str(byte))
 		if byte != byte_need:
 			dbg("BAD  " + "PROTOCOL ERROR. EXIT.")
 			raise ValueError()

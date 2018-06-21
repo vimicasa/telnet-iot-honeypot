@@ -15,7 +15,7 @@ class Client:
 		self.url      = config.get("backend")
 		self.auth     = requests.auth.HTTPBasicAuth(self.user, self.password)
 
-		self.test_login()
+		# self.test_login()
 	
 	def test_login(self):
 		try:

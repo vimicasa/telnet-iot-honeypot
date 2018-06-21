@@ -106,7 +106,13 @@ class Sample(Base):
 			"urls": len(self.urls) if depth == 0 else map(lambda url :
                 url.json(depth - 1), self.urls)
 		}
-	
+
+class IpReport(Base):
+	__tablename__ = 'ip_report'
+	id = Column('id',Integer, primary_key=True)
+	ip = Column('ip', String(16))
+	report = Column('report', Text())    
+
 class Connection(Base):
 	__tablename__ = 'conns'
 	
@@ -118,7 +124,7 @@ class Connection(Base):
 	connhash = Column('connhash', String(256))
 
 	stream = Column('text_combined', Text())
-
+	
 	asn_id = Column('asn', None, ForeignKey('asn.asn'))
 	asn = relationship("ASN", back_populates="connections")
 
@@ -235,14 +241,14 @@ eng = None
 if is_sqlite:
 	eng = sqlalchemy.create_engine(config.get("sql"),
 								poolclass=QueuePool,
-								pool_size=1,
-								max_overflow=1,
+								pool_size=config.get("max_db_conn"),
+								max_overflow=config.get("max_overflow"),
 								connect_args={'check_same_thread': False})
 else:
 	eng = sqlalchemy.create_engine(config.get("sql"),
 								poolclass=QueuePool,
 								pool_size=config.get("max_db_conn"),
-								max_overflow=config.get("max_db_conn"))
+								max_overflow=config.get("max_overflow"))
 
 Base.metadata.create_all(eng)
 

@@ -157,6 +157,15 @@ def get_url(ref_enc):
 def get_newest_urls():
 	urls = web.get_newest_urls()
 	return json.dumps(urls)
+
+### ips
+@app.route("/ip/<ip>")
+def get_ip_report(ip):
+	report = web.get_ip_report(ip)
+	if report:
+		return json.dumps(report)
+	else:
+		return "", 404
 		
 ### connections
 

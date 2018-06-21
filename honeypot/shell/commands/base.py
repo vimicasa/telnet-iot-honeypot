@@ -1,4 +1,5 @@
 import sys
+import time
 import traceback
 
 class Proc:
@@ -185,6 +186,12 @@ Proc.register("ps",      StaticProc(
 """  PID TTY          TIME CMD
  6467 pts/0    00:00:00 sh
 12013 pts/0    00:00:00 ps\n"""))
+Proc.register("id",      StaticProc(
+"""uid=0(root) gid=0(root) groups=0(root)\n"""))
+Proc.register("whoami",      StaticProc(
+"""root\n"""))
+Proc.register("who",      StaticProc(
+"""root tty3        """+ time.strftime("%Y-%m-%d %H:%M")+""" (:0)\n"""))
 
 # Other files
 

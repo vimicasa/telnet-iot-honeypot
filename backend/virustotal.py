@@ -5,6 +5,8 @@ import Queue
 
 from util.config import config
 
+USER_AGENT = "Telnet Honeybot Backend"
+
 
 class QuotaExceededError(Exception):		
 	def __str__(self):
@@ -14,7 +16,7 @@ class Virustotal:
 	def __init__(self, key):
 		self.api_key    = key
 		self.url        = "https://www.virustotal.com/vtapi/v2/"
-		self.user_agent = "Telnet Honeybot Backend"
+		self.headers 	= { "User-Agent" : USER_AGENT }
 		self.engines    = ["DrWeb", "Kaspersky", "ESET-NOD32"]
 		
 		self.queue      = Queue.Queue()
@@ -39,8 +41,7 @@ class Virustotal:
 		fp      = open(f, 'rb')
 		params  = {'apikey': self.api_key}
 		files   = {'file': (fname, fp)}
-		headers = { "User-Agent" : self.user_agent }
-		res     = self.req("POST", self.url + 'file/scan', files=files, params=params, headers=headers)
+		res     = self.req("POST", self.url + 'file/scan', files=files, params=params, headers=self.headers)
 		json    = res.json()
 		fp.close()
 		
@@ -51,8 +52,7 @@ class Virustotal:
 
 	def query_hash_sha256(self, h):
 		params  = { 'apikey': self.api_key, 'resource': h }
-		headers = { "User-Agent" : self.user_agent }
-		res     = self.req("GET", self.url + "file/report", params=params, headers=headers)
+		res     = self.req("GET", self.url + "file/report", params=params, headers=self.headers)
 
 		json = res.json()
 
@@ -62,10 +62,8 @@ class Virustotal:
 			return None
 
 	def put_comment(self, obj, msg):
-		res = None
 		params  = { 'apikey': self.api_key, 'resource': obj, "comment": msg }
-		headers = { "User-Agent" : self.user_agent }
-		res     = self.req("GET", self.url + "comments/put", params=params, headers=headers)
+		res     = self.req("GET", self.url + "comments/put", params=params, headers=self.headers)
 		json    = res.json()
 
 		if json["response_code"] == 1:
@@ -82,5 +80,16 @@ class Virustotal:
 				if x["detected"]:
 					return x["result"]
 			return None
+		else:
+			return None
+
+	def query_ip_reports(self, ip):
+		params  = { 'apikey': self.api_key, 'ip': '90.156.201.27' }
+		res     = self.req("GET", self.url + "ip-address/report", params=params, headers=self.headers)
+
+		json = res.json()
+
+		if json["response_code"] == 1:
+			return json
 		else:
 			return None

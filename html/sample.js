@@ -226,6 +226,11 @@ app.controller('connection', function($scope, $http, $routeParams) {
 		
 		var last_i = $scope.connection.stream.length - 1;
 		$scope.connection.duration    = $scope.connection.stream[last_i].ts;
+		
+		$http.get(api + "/ip/" + httpResult.data.ip).then(function (httpResult) {
+			$scope.report = JSON.parse(JSON.parse(httpResult.data));
+			$scope.tab = 'resolutions';	
+		});
 
 	});
 

@@ -56,7 +56,7 @@ if __name__ == "__main__":
 		action = sys.argv[1]
 
 	if action == None:
-		srv = Telnetd(2223)
+		srv = Telnetd(2323)
 		signal.signal(signal.SIGINT, signal_handler)
 		srv.run()
 	elif action == "import":
