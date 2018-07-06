@@ -9,9 +9,10 @@ from decorator import decorator
 from functools import wraps
 from simpleeval import simple_eval
 from argon2 import argon2_hash
+from urlparse import urlparse
 
 from additionalinfo import get_ip_info, get_url_info, get_asn_info
-from db import get_db, filter_ascii, Sample, Connection, Url, ASN, Tag, User, IpReport
+from db import get_db, filter_ascii, Sample, Connection, Url, ASN, Tag, User, IpReport, DomainReport
 from virustotal import Virustotal
 
 from cuckoo import Cuckoo
@@ -92,8 +93,13 @@ class WebController:
 
 	@db_wrapper
 	def get_ip_report(self, ip):
-		ip_report = self.session.query(IpReport).filter(IpReport.ip == ip).first()
+		ip_report = self.session.query(IpReport).filter(IpReport.ip == ip).order_by(IpReport.id.desc()).first()
 		return ip_report.report if ip_report else None
+	
+	@db_wrapper
+	def get_domain_report(self, domain):
+		domain_report = self.session.query(DomainReport).filter(DomainReport.domain == domain).order_by(DomainReport.id.desc()).first()
+		return domain_report.report if domain_report else None
 
 	@db_wrapper
 	def get_connection(self, id):
@@ -234,7 +240,8 @@ class WebController:
 # Controls Actions perfomed by Honeypot Clients
 class ClientController:
 
-	def __init__(self):
+	def __init__(self, web):
+		self.web = web
 		self.session  = None
 		if config.get("submit_to_vt"):
 			self.vt = Virustotal(config.get("vt_key", optional=True))
@@ -254,6 +261,14 @@ class ClientController:
 				asn_obj = ASN(asn=asn, name=asn_info['name'], reg=asn_info['reg'], country=asn_info['country'])
 				self.session.add(asn_obj)
 				return asn_obj.json(depth=1)
+	@db_wrapper
+	def put_domain(self, domain):
+		if self.vt != None:
+			report = self.vt.query_domain_reports(domain)
+		if report != None:
+			domainReport = DomainReport(domain=domain,report=json.dumps(report))
+			self.session.add(domainReport) 
+			self.session.flush()
 
 	@db_wrapper
 	def put_session(self, session):
@@ -272,9 +287,10 @@ class ClientController:
 		
 		report={}
 		if self.vt != None:
-			report = self.vt.query_ip_reports(session["ip"])
-			ipReport = IpReport(ip=session["ip"],report=json.dumps(report))
-			self.session.add(ipReport)
+			if self.web.get_ip_report(session["ip"]) == None:
+				report = self.vt.query_ip_reports(session["ip"])
+				ipReport = IpReport(ip=session["ip"],report=json.dumps(report))
+				self.session.add(ipReport)
 
 		# Calculate "hash"
 		connhash = ""
@@ -303,6 +319,14 @@ class ClientController:
 		for url in set_urls:
 			db_url = self.db.get_url(url).fetchone()
 			url_id = 0
+
+			report=''
+			parsed_uri = urlparse( url )
+			domain = '{uri.netloc}'.format(uri=parsed_uri)
+			if self.vt != None:
+				report = self.vt.query_domain_reports(domain)
+			domainReport = DomainReport(domain=domain,report=json.dumps(report))
+			self.session.add(domainReport)
 
 			if db_url == None:
 				url_ip      = None

@@ -13,7 +13,32 @@
 			</span><br>
 		</td>
 	</tr>
+</table>
 
+<h2>Domain VT Info</h2>
+	<form ng-show="domainFound">
+		<button type="submit" class="btn btn-default" ng-click="loadVTDomain(domain)">Reload Info</button>
+	</form>
+<table class="table" ng-show="!domainFound">
+	
+	<tr><td>Info from Domain <strong>{{ domain }}</strong> not found.</td></tr>
+	<tr><td>
+			<form>
+				<button type="submit" class="btn btn-default" ng-click="loadVTDomain(domain)">Click here to load info from VT</button>
+			</form>
+		</td></tr>
+	
+</table>
+
+<table class="table" ng-show="domainFound">
+	<tr><td>Info from Domain <strong>{{ domain }}</strong></td><td>{{ domainReport.verbose_msg }}.</td></tr>
+	<tr ng-if="domainReport.subdomains"><td>Subdomains</td><td>{{ domainReport.subdomains.toString() }}</td></tr>
+	<tr ng-if="domainReport.domain_siblings"><td>Domain Siblins</td><td>{{ domainReport.domain_siblings.toString() }}</td></tr>
+	<tr ng-if="domainReport.categories"><td>Categories</td><td>{{ domainReport.categories.toString() }}</td></tr>
+	<tr ng-if="domainReport['Webutation domain info']"><td>Reputation</td><td>{{ domainReport["Webutation domain info"] }}</td></tr>
+	<tr ng-if="domainReport.whois"><td>Whois</td><td>{{ domainReport.whois }}</td></tr>
+	<tr ng-if="domainReport.detected_downloaded_samples"><td>Downloaded Samples</td><td>{{ domainReport.detected_downloaded_samples }}</td></tr>
+	
 </table>
 
 <h2>Sample</h2>

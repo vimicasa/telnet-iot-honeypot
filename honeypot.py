@@ -7,6 +7,7 @@ from honeypot.telnet      import Telnetd
 from honeypot.client      import Client
 from honeypot.session     import Session
 from honeypot.shell.shell import test_shell
+from util.config import config
 
 from util.dbg import dbg
 
@@ -22,9 +23,9 @@ def import_file(fname):
 				if obj["ip"] != None:
 					print "conn   " + obj["ip"]
 					client.put_session(obj)
-			if obj["type"] == "sample":
-				print "sample " + obj["sha256"]
-				client.put_sample_info(obj)
+				if obj["type"] == "sample":
+					print "sample " + obj["sha256"]
+					client.put_sample_info(obj)
 				
 def rerun_file(fname):
 	with open(fname, "rb") as fp:
@@ -56,7 +57,8 @@ if __name__ == "__main__":
 		action = sys.argv[1]
 
 	if action == None:
-		srv = Telnetd(2323)
+		port = config.get("port", optional=True, default=2323) 
+		srv = Telnetd(port)
 		signal.signal(signal.SIGINT, signal_handler)
 		srv.run()
 	elif action == "import":

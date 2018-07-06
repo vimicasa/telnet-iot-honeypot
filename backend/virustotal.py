@@ -3,8 +3,6 @@ import time
 import db
 import Queue
 
-from util.config import config
-
 USER_AGENT = "Telnet Honeybot Backend"
 
 
@@ -84,8 +82,19 @@ class Virustotal:
 			return None
 
 	def query_ip_reports(self, ip):
-		params  = { 'apikey': self.api_key, 'ip': '90.156.201.27' }
+		params  = { 'apikey': self.api_key, 'ip': ip }
 		res     = self.req("GET", self.url + "ip-address/report", params=params, headers=self.headers)
+
+		json = res.json()
+
+		if json["response_code"] == 1:
+			return json
+		else:
+			return None
+
+	def query_domain_reports(self, domain):
+		params  = { 'apikey': self.api_key, 'domain': domain }
+		res     = self.req("GET", self.url + "domain/report", params=params, headers=self.headers)
 
 		json = res.json()
 

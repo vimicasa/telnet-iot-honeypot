@@ -90,7 +90,7 @@ class TelnetSess:
 	def __init__(self, serv, sock, remote):
 		self.serv    = serv
 		self.sock    = sock
-		self.timeout = 5.0 # Read timeout
+		self.timeout = 20.0 # Read timeout
 		self.maxtime = 60.0 # Max session time
 		self.db_id   = 0
 		self.remote  = remote

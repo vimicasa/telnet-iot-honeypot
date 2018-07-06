@@ -14,8 +14,70 @@
 	<span ng-repeat="(k, v) in filter">{{ k }} == <img ng-show="k == 'country'" src="img/flags/{{ v.toLowerCase() }}.png"> {{ v }} {{ k == 'country' ? '(' + COUNTRY_LIST[v] + ')' : '' }} {{ $last ? '' : ', ' }}</span>
 </div>
 
-<div ng-include="'connectionlist-embed.html'"></div>
+<div >
+	<span ng-show="report"><label>ASN:</label><label>{{report.asn}}</label></span>
+	  
+	<ul class="nav nav-tabs" role="tablist">
+		<li role="presentation" ng-class="{active: tab == 'connections'}"><a ng-click="tab = 'connections'">Connections</a></li>
+		<li ng-show="report" role="presentation" ng-class="{active: tab == 'resolutions'}"><a ng-click="tab = 'resolutions'">Resolutions (VT)</a></li>
+		<li ng-show="report" role="presentation" ng-class="{active: tab == 'url'}"><a ng-click="tab = 'url'">Detected Urls (VT)</a></li>
+		<li ng-show="report" role="presentation" ng-class="{active: tab == 'samples'}"><a ng-click="tab = 'samples'">Detected Samples (VT)</a></li>
+		
+	</ul>
+	
+	  <div >
+		<div ng-show="tab == 'connections'">
+			<div ng-include="'connectionlist-embed.html'"></div>
 
-<div class="pull-right">
-	<button type="button" class="btn btn-default" ng-click="nextpage()">More &raquo;</button>
+			<div class="pull-right">
+				<button type="button" class="btn btn-default" ng-click="nextpage()">More &raquo;</button>
+			</div>
+		</div>
+		<div ng-show="tab == 'resolutions'">
+			<table class="table">
+				<tr>
+					<th>Last Resolved</th>
+					<th>Hostname</th>
+				</tr>
+				<tr ng-repeat="res in report.resolutions | orderBy:'last_resolved'">
+					<td>{{ res.last_resolved }}</td>
+					<td>{{ res.hostname }}</td>
+				</tr>
+			</table>
+		</div>
+		<div ng-show="tab == 'url'">
+			<table class="table">
+				<tr>
+					<th>Url</th>
+					<th>Positives</th>
+					<th>Total</th>
+					<th>Scan Date</th>
+				</tr>
+				<tr ng-repeat="url in report.undetected_urls ">
+					<td><a href="{{ '#/url/' + encurl(url.url) }}">{{ url[0] }}</a></td>
+					<td>{{ url[2] }}</td>
+					<td>{{ url[3] }}</td>
+					<td>{{ url[4] }}</td>
+				</tr>
+			</table>
+		</div>
+		<div ng-show="tab == 'samples'" >
+			<table class="table">
+				<tr>
+					<th>Date</th>
+					<th>Positives</th>
+					<th>Total</th>
+					<th>SHA256 (Go to VT)</th>
+				</tr>
+				<tr ng-repeat="sample in report.undetected_downloaded_samples | orderBy:'positives'">
+					<td>{{ sample.date }}</td>
+					<td>{{ sample.positives }}</td>
+					<td>{{ sample.total }}</td>
+					<td><a target="_blank" href="{{ 'https://www.virustotal.com/#/file/' + sample.sha256 + '/detection' }}">{{ short(sample.sha256, 16) }}</a></td>
+				</tr>
+			</table>
+		</div>
+	  </div>
+
 </div>
+

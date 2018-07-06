@@ -111,6 +111,12 @@ class IpReport(Base):
 	__tablename__ = 'ip_report'
 	id = Column('id',Integer, primary_key=True)
 	ip = Column('ip', String(16))
+	report = Column('report', Text())   
+
+class DomainReport(Base):
+	__tablename__ = 'domain_report'
+	id = Column('id',Integer, primary_key=True)
+	domain = Column('domain', String(100))
 	report = Column('report', Text())    
 
 class Connection(Base):

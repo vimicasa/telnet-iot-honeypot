@@ -84,5 +84,5 @@ class Session:
 			dbg("Could not parse \""+l+"\"")
 			self.send_string("sh: syntax error near unexpected token `" + " " + "'\n")
 		
-		self.send_string(PROMPT)
+		self.send_string(self.prompt)
 

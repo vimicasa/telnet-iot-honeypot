@@ -3,19 +3,18 @@ from flask_httpauth import HTTPBasicAuth
 auth = HTTPBasicAuth()
 
 from db import get_db
-from clientcontroller import ClientController, WebController, AuthController
-
-from util.config import config
+from clientcontroller import WebController, ClientController, AuthController
 
 import os
 import json
 import base64
 import time
+from urlparse import urlparse
 
 app  = Flask(__name__)
 
-ctrl     = ClientController()
 web      = WebController()
+ctrl     = ClientController(web)
 authctrl = AuthController()
 
 app.debug = True
@@ -166,6 +165,21 @@ def get_ip_report(ip):
 		return json.dumps(report)
 	else:
 		return "", 404
+
+### domains
+@app.route("/domain/<domain>")
+def get_domain_report(domain):
+
+	report = web.get_domain_report(domain)
+	if report != 'null':
+		return json.dumps(report)
+	else:
+		return "", 404
+
+@app.route("/domain/<domain>",methods = ["POST"])
+def post_domain_report(domain):
+	ctrl.put_domain(domain)
+	return get_domain_report(domain)
 		
 ### connections
 

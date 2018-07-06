@@ -9,5 +9,5 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
-srv = Telnetd(2222)
+srv = Telnetd(2223)
 srv.run()

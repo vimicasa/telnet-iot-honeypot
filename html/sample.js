@@ -175,16 +175,38 @@ app.controller('url', function($scope, $http, $routeParams) {
 	$scope.url = null;
 
 	$scope.formatDate = formatDateTime;
+	$scope.getDomain = getDomain;
 	$scope.nicenull = nicenull;
 	$scope.short = short;
 	$scope.encurl = encurl;
 	$scope.decurl = decurl;
 
+
+	$scope.loadVTDomain = function(domain) {
+       
+        $http.post(api + "/domain/"+domain).then(function (httpResult) {
+			$scope.domainFound = true;
+			$scope.domainReport = JSON.parse(JSON.parse(httpResult.data));
+        }, function (httpError) {
+            alert("Cannot load domain data from VT. Try Later");
+        });
+        
+    };
+
+
 	var url = $routeParams.url;
 	$http.get(api + "/url/" + url).then(function (httpResult) {
 		$scope.url = httpResult.data;
 		$scope.url.countryname = COUNTRY_LIST[$scope.url.country];
+		
+		$scope.domain = getDomain(httpResult.data.url);
+		$http.get(api + "/domain/" + getDomain(httpResult.data.url)).then(function (httpResult) {
+			$scope.domainFound = true;
+			$scope.domainReport = JSON.parse(JSON.parse(httpResult.data));
+		})
 	});
+
+	
 
 });
 
@@ -251,12 +273,17 @@ app.controller('connectionlist', function($scope, $http, $routeParams, $location
 	$scope.filter = $routeParams;
 
 	var url = api + "/connections?";
-
+	
 	for (key in $routeParams)
 	{
 		url = url + key + "=" + $routeParams[key] + "&";
+		if ('ip' === key){
+			$http.get(api + "/ip/" + $routeParams[key]).then(function (httpResult) {
+				$scope.report = JSON.parse(JSON.parse(httpResult.data));				
+			});
+		}
 	}
-
+	$scope.tab = 'connections';	
 	$http.get(url).then(function (httpResult) {
 		$scope.connections = httpResult.data;
 
