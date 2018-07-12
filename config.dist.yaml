@@ -29,13 +29,14 @@ backend: "http://localhost:5000"
 log_raw: file.txt
 
 # Device welcome to appear
-device_welcome : shivaLR
+device_profile : arubaSwitch
 custom_welcome : "\xff\xfd\x18\xff\xfb\x01\n\r\n\r\rAccount:"
-custom_username: "Account:"
+custom_username: "Username: "
+custom_port: 23
 
 # Prompt value to show
 # default -> router#
-#prompt : "router##"
+prompt : "router##"
 
 #############################################
 # Backend configuration

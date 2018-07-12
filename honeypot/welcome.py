@@ -49,7 +49,7 @@ class Welcome:
             "arubaSwitch": [self.arubaSwitchWelcome,"User: "],
             "busybox": [self.busyboxWelcome,"login: "]
         }		
-        type = switcher.get(config.get("device_welcome"), lambda: "Invalid type")
+        type = switcher.get(config.get("device_profile"), lambda: "Invalid type")
         type[0]()
         u = "N/A"
         if type[1] != None:

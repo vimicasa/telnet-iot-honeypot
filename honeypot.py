@@ -57,7 +57,18 @@ if __name__ == "__main__":
 		action = sys.argv[1]
 
 	if action == None:
-		port = config.get("port", optional=True, default=2323) 
+		switcher = {
+			"default": 2323,
+			"custom": config.get("custom_port"),
+			"shivaLR": 2424,
+			"jetDirect": 2525,
+			"firstClassMsg": 2626,
+			"ambitCable": 2727,
+			"nortel": 2828,
+			"arubaSwitch": 2929,
+			"busybox": 2121
+		}	
+		port = type = switcher.get(config.get("device_profile"), lambda: "Invalid type")
 		srv = Telnetd(port)
 		signal.signal(signal.SIGINT, signal_handler)
 		srv.run()
