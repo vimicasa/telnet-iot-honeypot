@@ -7,6 +7,7 @@ import string
 from session import Session
 from welcome import Welcome
 from util.dbg import dbg
+from util.config import config
 
 TELNET_ISSUE = "\nTELNET session now in ESTABLISHED state\n"
 
@@ -90,8 +91,8 @@ class TelnetSess:
 	def __init__(self, serv, sock, remote):
 		self.serv    = serv
 		self.sock    = sock
-		self.timeout = 20.0 # Read timeout
-		self.maxtime = 60.0 # Max session time
+		self.timeout = config.get("timeout", optional=True, default=15.0) # Read timeout
+		self.maxtime = config.get("maxtime", optional=True, default=50.0) # Max session time
 		self.db_id   = 0
 		self.remote  = remote
 		self.session = None	

@@ -14,7 +14,7 @@ from sampledb_client import SessionRecord
 
 from shell.shell import Env, run
 
-MIN_FILE_SIZE = 128
+MIN_FILE_SIZE 	= config.get("min_file_size", optional=True, default=128)
 PROMPT = "router# "
 			
 class Session:
