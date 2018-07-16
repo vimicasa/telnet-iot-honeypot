@@ -189,7 +189,7 @@ Proc.register("locate",  Which())
 Proc.register("cd",      StaticProc(""))
 Proc.register("true",    StaticProc(""))
 Proc.register("chmod",   StaticProc(""))
-Proc.register("uname",   StaticProc(""))
+Proc.register("uname",   StaticProc("Linux"))
 Proc.register(":",       StaticProc(""))
 Proc.register("ps",      StaticProc(
 """  PID TTY          TIME CMD
