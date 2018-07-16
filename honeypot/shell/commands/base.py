@@ -168,6 +168,13 @@ class Cp(Proc):
             env.write("cp: cannot stat '" + infile + "': No such file or directory\n")
             return 1
 
+class Which(Proc):
+
+    def run(self, env, args):
+        infile  = args[0]
+        env.write("/usr/bin/nmap " + infile + "\n")
+        return 0
+
 Proc.register("cp",      Cp())
 Proc.register("ls",      Ls())
 Proc.register("cat",     Cat())
@@ -176,6 +183,8 @@ Proc.register("rm",      Rm())
 Proc.register("echo",    Echo())
 Proc.register("busybox", BusyBox())
 Proc.register("sh",      Shell())
+Proc.register("which",   Which())
+Proc.register("locate",  Which())
 
 Proc.register("cd",      StaticProc(""))
 Proc.register("true",    StaticProc(""))
@@ -192,6 +201,15 @@ Proc.register("whoami",      StaticProc(
 """root\n"""))
 Proc.register("who",      StaticProc(
 """root tty3        """+ time.strftime("%Y-%m-%d %H:%M")+""" (:0)\n"""))
+Proc.register("date",      StaticProc(time.strftime("%a %b %d %H:%M:%S CEST %Y")+""" \n"""))
+Proc.register("hostname",      StaticProc(
+"""cisco\n"""))
+Proc.register("arp",      StaticProc(
+"""Address                Hardware  MAC         Index Masc.         Interface
+192.168.1.36             ether   00-14-f1-01-cd-45   C                     enp1s0
+192.168.1.1              ether   b0:46:ff:51:81:0e   C                     enp1s0
+\n"""))
+
 
 # Other files
 
