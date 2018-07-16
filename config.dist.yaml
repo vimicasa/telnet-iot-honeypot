@@ -38,6 +38,13 @@ custom_port: 23
 # default -> router#
 prompt : "router##"
 
+# Minimun size of file to be processed
+min_file_size: 129
+
+# Session configuration
+timeout: 20.0
+maxtime: 60.0
+
 #############################################
 # Backend configuration
 
@@ -67,4 +74,3 @@ cuckoo_url_base: "http://127.0.0.1:8090"
 cuckoo_user:     "user"
 cuckoo_passwd:   "passwd"
 cuckoo_force:    false
-
